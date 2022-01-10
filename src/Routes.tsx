@@ -19,7 +19,7 @@ export const Routes = (props: Props) => {
         <Route path={ROUTES.login} component={LoginPage} />
         <ProtectedRoute path={ROUTES.home} component={HomePage} />
         <Route path={ROUTES.contact} component={ContactPage} />
-        <Route path={ROUTES.detail} component={DetailPage} />
+        <Route path={`${ROUTES.detail}/:id`} component={DetailPage} />
         <Route path={ROUTES.profile} component={DetailPage} />
         <Route path="/" component={LoginPage} />
       </Switch>
