@@ -163,7 +163,12 @@ const DetailPage = () => {
           <ReactCrop
             src={image ? image : ''}
             crop={crop}
-            onChange={(newCrop: any) => setCrop(newCrop)}
+            onChange={(newCrop: any) => {
+              console.log('====================================');
+              console.log(newCrop);
+              console.log('====================================');
+              setCrop(newCrop);
+            }}
             onImageLoaded={onLoad}
             onComplete={(c) => setCompletedCrop(c)}
           />
