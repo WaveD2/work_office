@@ -23,7 +23,7 @@ export function fetchThunk(
               'Content-Type': contentType || 'application/json',
               Authorization: Cookies.get(ACCESS_TOKEN_KEY) || '',
             }
-          : {},
+          : { Authorization: Cookies.get(ACCESS_TOKEN_KEY) || '' },
       cache: 'no-store',
     });
 
