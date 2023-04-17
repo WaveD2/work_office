@@ -110,6 +110,10 @@ const LoginForm = (props: Props) => {
           </button>
         </div>
       </div>
+
+      <div>
+        <a href="/signup">Đăng ký</a>
+      </div>
     </form>
   );
 };

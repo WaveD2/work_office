@@ -1,4 +1,4 @@
-import { APIHost } from '../utils/constants';
+import { APIHost, APIUrl } from '../utils/constants';
 
 enum APIService {
   auth,
@@ -8,7 +8,9 @@ enum APIService {
 
 function getBaseUrl(service: APIService) {
   if (service === APIService.auth) {
-    return `${APIHost}/auth`;
+    console.log(APIHost);
+    
+    return `${APIUrl}/api/auth`;
   } else if (service === APIService.protected) {
     return `${APIHost}/protected`;
   } else if (service === APIService.public) {
