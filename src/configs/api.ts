@@ -7,9 +7,12 @@ enum APIService {
 }
 
 function getBaseUrl(service: APIService) {
+  console.log('service connect', service);
+  console.log(APIService);
+
   if (service === APIService.auth) {
     console.log(APIHost);
-    
+
     return `${APIUrl}/api/auth`;
   } else if (service === APIService.protected) {
     return `${APIHost}/protected`;

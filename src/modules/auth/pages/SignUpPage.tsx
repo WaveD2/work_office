@@ -4,10 +4,12 @@ import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import './loginPage.scss';
 import logo from '../../../logoPng.png';
-import { debounce } from '../../../utils/debounce';
+import { useHistory } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useTranslation } from 'react-i18next';
 
+// Load language resources
 interface Country {
   code: number;
   data: [{ createdAt: string; id: number; name: string; pid: number | string }];
@@ -16,10 +18,16 @@ interface Country {
 }
 
 const SignUpPage = () => {
+  const { i18n } = useTranslation();
+
+  const history = useHistory();
   const [country, setCountry] = useState<Country>();
   const [city, setCity] = useState<Country>();
+  const [password, setPassword] = useState('');
+  const [repeatPassword, setRepeatPassword] = useState('');
+  const [error, setError] = useState('');
   const [idCountry, setIdCountry] = useState<string>();
-  const [userRes, setUserRes] = useState();
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     axios.get(`${process.env.REACT_APP_API_URL}/api/v1/location`).then((response) => {
@@ -41,30 +49,53 @@ const SignUpPage = () => {
     criteriaMode: 'all',
   });
 
+  const handleLanguageChange = (lng: string) => {
+    console.log(lng);
+  };
+
+  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(event.target.value);
+  };
+
+  const handleRepeatPasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRepeatPassword(event.target.value);
+    if (event.target.value !== password) {
+      console.log('error');
+      setError('Mật khẩu không khớp !');
+    } else {
+      setError('');
+    }
+  };
+
   const onSubmit = async (data: any) => {
+    if (submitting) {
+      return;
+    }
+
+    setSubmitting(true);
     await axios
       .post(`${process.env.REACT_APP_API_URL}/api/v1/auth/register`, data)
       .then(function (response) {
-        console.log(response.data);
         if (response?.data.code === 200 && !response?.data.error) {
           toast.success('Tạo tài khoản thành công !');
-          setUserRes(response.data);
-        } else if (response?.data?.code === 500 && response?.data.error) {
-          toast.error('Tài khoản đã có !');
-          setUserRes(response.data);
+          setTimeout(() => {
+            history.push('/');
+          }, 2000);
+          return;
         }
-        toast.error('Tạo tài khoản thất bại !');
+        return toast.error('Tạo tài khoản thất bại !');
       })
       .catch(function (error) {
-        console.log('register error', error);
-        toast.error('Tạo tài khoản thất bại !');
+        if (error?.toString()?.indexOf('500')) {
+          return toast.error('Tài khoản đã có !');
+        }
+        return toast.error('Tạo tài khoản thất bại !');
       });
-  };
 
-  // hạn chế spam submit
-  useEffect(() => {
-    onSubmit;
-  }, [userRes]);
+    setTimeout(() => {
+      setSubmitting(false);
+    }, 2000);
+  };
 
   return (
     <section
@@ -80,18 +111,29 @@ const SignUpPage = () => {
     >
       <img src={logo} alt="" style={{ maxWidth: '250px', margin: '40px 0' }} />
       <ToastContainer />
+
+      <select
+        className="box-lang"
+        onChange={(e) => {
+          e.preventDefault();
+          handleLanguageChange(e.target.value);
+        }}
+        style={{ maxWidth: '150px', position: 'absolute', top: '20px', right: '20px' }}
+      >
+        <option value="vn">Tiếng Việt</option>
+        <option value="en">English</option>
+      </select>
+
       <form
         style={{ maxWidth: '560px', width: '100%' }}
-        noValidate
         onSubmit={handleSubmit(onSubmit)}
         className="row g-3 needs-validation"
       >
         <div className="col-md-12">
           <label htmlFor="inputEmail" className="form-label">
-            <FormattedMessage id="email" />
+            Email
           </label>
           <input type="text" className="form-control" id="inputEmail" {...register('email', { required: true })} />
-          {errors.exampleRequired && <span>This field is required</span>}
         </div>
 
         <div className="col-md-12">
@@ -102,10 +144,9 @@ const SignUpPage = () => {
             type="password"
             className="form-control"
             id="inputPassword"
-            {...register('password', { required: true })}
+            {...register('password', { required: true, minLength: 4, maxLength: 20 })}
+            onChange={handlePasswordChange}
           />
-
-          {errors.exampleRequired && <span>This field is required</span>}
         </div>
 
         <div className="col-md-12">
@@ -117,9 +158,9 @@ const SignUpPage = () => {
             className="form-control"
             id="repeatPassword"
             {...register('repeatPassword', { required: true })}
+            onChange={handleRepeatPasswordChange}
           />
-
-          {errors.exampleRequired && <span>This field is required</span>}
+          {error && <p style={{ color: 'red' }}>{error}</p>}
         </div>
 
         <div className="col-md-12">
